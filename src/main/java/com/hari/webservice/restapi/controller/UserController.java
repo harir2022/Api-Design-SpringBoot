@@ -1,6 +1,7 @@
 package com.hari.webservice.restapi.controller;
  
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
@@ -9,14 +10,20 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.hari.webservice.restapi.exception.UserNotFoundException;
 import com.hari.webservice.restapi.model.User;
+import com.hari.webservice.restapi.model.User1;
 import com.hari.webservice.restapi.repository.UserRepo;
 
 
@@ -35,6 +42,33 @@ public class UserController {
           List<User> users = UserRepo.users;
          return users;
      }
+     
+     @GetMapping("/users/confidental")
+     public MappingJacksonValue getAllConfidentalUserDetails(@RequestParam boolean high) {
+    	 
+    	 List<User1> users = UserRepo.confidentalUsers;
+		 MappingJacksonValue mappingJacksonvalues= new MappingJacksonValue(users);
+		 SimpleBeanPropertyFilter filter ;
+		 if(high) {
+			
+			 filter=SimpleBeanPropertyFilter.filterOutAllExcept(
+					"id","firstName","lastName"
+					 );
+			 
+		 }else {
+			 filter=SimpleBeanPropertyFilter.filterOutAllExcept(
+					 "id","createdAt","leftAt","firstName","lastName",
+					 "paymentNo","token"
+					 );
+		 }
+         
+		 FilterProvider provider = new SimpleFilterProvider().addFilter("user1BeanFilter", filter);
+		 mappingJacksonvalues.setFilters(provider);
+		 
+         return mappingJacksonvalues;
+     }
+     
+     
      
      @GetMapping("/users/{id}")
      public EntityModel<User> getAllUser(@PathVariable long id) {
