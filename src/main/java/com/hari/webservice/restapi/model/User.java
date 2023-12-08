@@ -1,8 +1,12 @@
 package com.hari.webservice.restapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
+@JsonIgnoreProperties(value = {"password","id"})
 public class User{
 	
 	 
@@ -13,6 +17,7 @@ public class User{
      @Min(value = 18)
      int age ;
      
+//     @JsonIgnore
      String password;
 
      public User(long id ,String name , int age , String password){
