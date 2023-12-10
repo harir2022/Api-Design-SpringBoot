@@ -1,16 +1,22 @@
 package com.hari.webservice.restapi.controller;
  
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.converter.json.MappingJacksonValue;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,8 +39,11 @@ public class UserController {
 	
 	MessageSource messageSource;
 	
-	public UserController(MessageSource messageSource) {
+	JwtEncoder jwtEncoder;
+	
+	public UserController(MessageSource messageSource,	JwtEncoder jwtEncoder) {
 		this.messageSource=messageSource;
+		this.jwtEncoder=jwtEncoder;
 	}
 	
      @GetMapping("/users")
@@ -107,6 +116,32 @@ public class UserController {
  		return messageSource.getMessage("greeting", null,"Default message : "+locale.toString(), locale );
  		
      }
+     
+     @GetMapping("/auth")
+     private String auth(Authentication authentication) {
+    	return createToken(authentication);
+     }
+     
+     public String createToken(Authentication auth) {
+    	 var claims = JwtClaimsSet
+    	 	.builder()
+    	 	.issuer("hari")
+    	 	.issuedAt(Instant.now())
+    	 	.expiresAt(Instant.now().plusSeconds(60*60*24))
+    	 	.subject(auth.getName())
+    	 	.claim("scope",createScope(auth))
+    	 	.build();
+    	 JwtEncoderParameters parameter= JwtEncoderParameters.from(claims);
+		return jwtEncoder.encode(parameter).getTokenValue();
+     }
+
+	private String createScope(Authentication auth) {
+		return auth.getAuthorities().stream()
+		.map(a->a.getAuthority())
+		.collect(Collectors.joining(" "));
+	}
+     
+     
      
      
 }
