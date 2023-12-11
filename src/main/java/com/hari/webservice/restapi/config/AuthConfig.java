@@ -61,8 +61,8 @@ public class AuthConfig {
 	public UserDetailsService userDetailsService(DataSource ds) {
 		UserDetails user1 = User.builder()
 				.username("hari")
-				.password("123")
-				.roles("USER")
+				.password("12")
+				.roles("ADMIN")
 					.passwordEncoder(str-> passwordEncoder().encode(str))
 				.build();
 	
