@@ -30,7 +30,7 @@ public class SecurityConfig {
 			.httpBasic();		
 			
 						
-			http.oauth2Login(Customizer.withDefaults()); // oauth google
+//			http.oauth2Login(Customizer.withDefaults()); // oauth google
 		
 			http.headers().frameOptions().sameOrigin();
 			http.csrf(csrf -> csrf.disable());
