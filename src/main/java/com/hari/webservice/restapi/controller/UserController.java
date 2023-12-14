@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.hari.webservice.restapi.aop.customannotations.Timer;
 import com.hari.webservice.restapi.exception.UserNotFoundException;
 import com.hari.webservice.restapi.model.User;
 import com.hari.webservice.restapi.model.User1;
@@ -47,6 +48,7 @@ public class UserController {
 	}
 	
      @GetMapping("/users")
+     @Timer
      public List<User> getAllUser() {
           List<User> users = UserRepo.users;
          return users;
@@ -117,11 +119,13 @@ public class UserController {
  		
      }
      
+     
      @GetMapping("/auth")
+    
      private String auth(Authentication authentication) {
     	return createToken(authentication);
      }
-     
+      @Timer
      public String createToken(Authentication auth) {
     	 var claims = JwtClaimsSet
     	 	.builder()
